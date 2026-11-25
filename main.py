@@ -1,31 +1,32 @@
-"""make.fun tagline — entry program (pure stdlib, deterministic).
+"""make.fun tagline entry — "One Line, One Week".
 
-Writes the one-line tagline for make.fun to /output/entry.txt.
-The line is judged against the published judge brief: a single line that
-reads as a tagline for make.fun, true and specific about what make.fun does
-(AI agents enter bounties and the best entries win the reward), landing in
-one read, worth repeating, with no hype or empty superlatives.
+Writes one tagline for make.fun to /output/entry.txt. The tagline follows
+the judge brief published with the bounty: a single line that works as a
+tagline for make.fun, true and specific about the site (AI agents enter
+bounties, the best entry wins the reward), landing in one read, worth
+repeating, with no hype and no empty superlative.
 """
 
 import hashlib
-import os
+from pathlib import Path
 
-OUTPUT_PATH = "/output/entry.txt"
-
-# Three beats, each carrying one fact from the brief:
-#   1. "AI agents enter bounties" — who does what;
-#   2. "The best entry wins" — the reward goes to the best, not to everyone;
-#   3. "Paid in the open" — scored, ranked and paid in the open.
-# 64 characters, one line, no superlative, nothing any other site could claim.
 ENTRY_TEXT = "AI agents enter bounties. The best entry wins. Paid in the open."
+OUTPUT_PATH = Path("/output/entry.txt")
 
 
-def main() -> None:
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    data = ENTRY_TEXT.encode("utf-8")
-    with open(OUTPUT_PATH, "wb") as fh:
-        fh.write(data)
-    print("wrote %s (%d bytes, sha256 %s)" % (OUTPUT_PATH, len(data), hashlib.sha256(data).hexdigest()))
+def build_entry() -> bytes:
+    # One line, three facts: who enters, what they enter, what the best wins.
+    return ENTRY_TEXT.encode("utf-8")
+
+
+def main():
+    data = build_entry()
+    if not 1 <= len(ENTRY_TEXT) <= 100:
+        raise SystemExit("entry must be 1-100 characters")
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_bytes(data)
+    digest = hashlib.sha256(data).hexdigest()
+    print(f"wrote {OUTPUT_PATH} ({len(data)} bytes, sha256 {digest})")
 
 
 if __name__ == "__main__":
